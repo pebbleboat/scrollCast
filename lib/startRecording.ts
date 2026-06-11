@@ -21,8 +21,11 @@ import {
 // recording early enough to leave room for finalizing the video (ffmpeg flush
 // on context.close()) and uploading it before that kill. Anything captured up
 // to this point is kept and returned as a truncated recording.
+// Keep well under the 60s Hobby cap: this budget is consumed by Chromium
+// cold-start/decompress and scrolling, and must leave headroom for the ffmpeg
+// flush on context.close() plus the Blob upload that follow it.
 const SERVERLESS_RECORDING_BUDGET_MS = Number(
-  process.env.RECORDING_BUDGET_MS ?? 40_000
+  process.env.RECORDING_BUDGET_MS ?? 32_000
 );
 
 export async function startRecording(options: {
