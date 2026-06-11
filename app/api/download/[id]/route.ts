@@ -10,18 +10,22 @@ type RouteContext = {
 
 export async function GET(_request: Request, context: RouteContext) {
   const { id } = await context.params;
-  const session = getSession(id);
+  const session = await getSession(id);
 
   if (!session?.videoPath) {
     return NextResponse.json({ error: "Video not ready" }, { status: 404 });
   }
 
-  const video = await readFile(session.videoPath);
+  try {
+    const video = await readFile(session.videoPath);
 
-  return new NextResponse(video, {
-    headers: {
-      "Content-Type": "video/webm",
-      "Content-Disposition": `attachment; filename="walkthrough-${id}.webm"`,
-    },
-  });
+    return new NextResponse(video, {
+      headers: {
+        "Content-Type": "video/webm",
+        "Content-Disposition": `attachment; filename="walkthrough-${id}.webm"`,
+      },
+    });
+  } catch {
+    return NextResponse.json({ error: "Video not ready" }, { status: 404 });
+  }
 }

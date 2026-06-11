@@ -9,7 +9,7 @@ type RouteContext = {
 
 export async function GET(_request: Request, context: RouteContext) {
   const { id } = await context.params;
-  const session = getSession(id);
+  const session = await getSession(id);
 
   if (!session) {
     return NextResponse.json({ error: "Session not found" }, { status: 404 });
@@ -24,7 +24,7 @@ export async function GET(_request: Request, context: RouteContext) {
 
 export async function DELETE(_request: Request, context: RouteContext) {
   const { id } = await context.params;
-  const session = stopSession(id);
+  const session = await stopSession(id);
 
   if (!session) {
     return NextResponse.json({ error: "Session not found" }, { status: 404 });

@@ -1,6 +1,6 @@
-import { chromium } from "playwright";
 import { readdir } from "fs/promises";
 import path from "path";
+import { isServerless, launchBrowser } from "./browser";
 import { scrollPage } from "./scroll";
 import {
   DEFAULT_SCROLL,
@@ -42,10 +42,7 @@ export async function recordWalkthrough(
     signal,
   } = options;
 
-  const browser = await chromium.launch({
-    headless,
-    slowMo: 50,
-  });
+  const browser = await launchBrowser(headless);
 
   const context = await browser.newContext({
     viewport,
@@ -64,7 +61,12 @@ export async function recordWalkthrough(
     for (const url of pages) {
       if (signal?.aborted) break;
 
-      await guard(page.goto(url, { waitUntil: "networkidle" }));
+      await guard(
+        page.goto(url, {
+          waitUntil: isServerless() ? "domcontentloaded" : "networkidle",
+          timeout: isServerless() ? 30_000 : 60_000,
+        })
+      );
 
       if (signal?.aborted) break;
 

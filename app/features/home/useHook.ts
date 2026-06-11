@@ -81,7 +81,25 @@ export function useHook() {
         }),
       });
 
-      const data = await response.json();
+      let data: {
+        sessionId?: string;
+        status?: SessionState["status"];
+        hasVideo?: boolean;
+        error?: string;
+      };
+
+      try {
+        data = await response.json();
+      } catch {
+        setSession({
+          id: null,
+          status: "error",
+          hasVideo: false,
+          error: "Server returned an invalid response. Please try again.",
+          isStarting: false,
+        });
+        return;
+      }
 
       if (!response.ok) {
         setSession((current) => ({
@@ -95,7 +113,10 @@ export function useHook() {
 
       setSession((current) => ({
         ...current,
-        id: data.sessionId,
+        id: data.sessionId ?? null,
+        status: data.status ?? "recording",
+        hasVideo: Boolean(data.hasVideo),
+        error: data.error ?? null,
         isStarting: false,
       }));
     } catch {
