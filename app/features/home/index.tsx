@@ -66,27 +66,34 @@ export default function Home() {
             <span className="recording-dot h-5 w-5 rounded-full bg-red-500" />
           </div>
           <h2 className="mt-5 text-2xl font-semibold text-white">
-            {isStarting ? "Launching browser…" : "Recording in progress"}
+            {isStarting ? "Setting things up…" : "Recording in progress"}
           </h2>
           <p className="mt-1.5 max-w-sm text-sm text-zinc-400">
-            A separate Chromium window is open. Keep it visible while ScrollCast
-            captures your pages.
+            {isStarting
+              ? "Spinning up a browser to capture your pages. This only takes a moment."
+              : "Sit tight — ScrollCast is scrolling through your pages and rendering the video. Keep this tab open."}
           </p>
         </>
       );
     }
 
-    if (canDownload) {
+    if (canDownload && downloadUrl) {
       return (
-        <>
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400">
+        <div className="flex w-full flex-col items-center">
+          <video
+            src={downloadUrl}
+            controls
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="max-h-[320px] w-auto max-w-full rounded-xl border border-[#2a2a33] bg-black shadow-2xl"
+          />
+          <p className="mt-3 flex items-center gap-2 text-sm font-medium text-emerald-400">
             <CheckIcon />
-          </div>
-          <h2 className="mt-5 text-2xl font-semibold text-white">Recording complete</h2>
-          <p className="mt-1.5 max-w-sm text-sm text-zinc-400">
-            Your walkthrough is ready. Download it from the panel on the right.
+            Recording complete — preview above, download on the right.
           </p>
-        </>
+        </div>
       );
     }
 
@@ -97,8 +104,8 @@ export default function Home() {
         </div>
         <h2 className="mt-5 text-2xl font-semibold text-white">Ready to capture</h2>
         <p className="mt-1.5 max-w-sm text-sm text-zinc-400">
-          A separate Chromium window will open to record your pages. Keep it
-          visible for the best results.
+          Add your pages and hit record. ScrollCast captures a smooth, high-FPS
+          scroll-through and renders it into a downloadable video.
         </p>
       </>
     );
@@ -286,7 +293,7 @@ export default function Home() {
                 {[
                   "Enter your list of URLs to be captured in order.",
                   "Configure speed and distance for the auto-scroll engine.",
-                  "Hit record. A Chromium window captures a high-FPS video.",
+                  "Hit record. ScrollCast captures a high-FPS scroll-through video.",
                 ].map((step, i) => (
                   <li key={i} className="flex gap-3 text-sm text-zinc-400">
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-500/15 text-[11px] font-semibold text-indigo-400">
