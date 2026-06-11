@@ -44,7 +44,8 @@ export async function POST(request: Request) {
       return NextResponse.json({
         sessionId: session.id,
         status: session.status,
-        hasVideo: Boolean(session.videoPath),
+        hasVideo: Boolean(session.videoUrl ?? session.videoPath),
+        videoUrl: session.videoUrl,
         error: session.error,
       });
     }

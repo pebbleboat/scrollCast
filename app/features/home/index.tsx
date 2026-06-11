@@ -35,6 +35,7 @@ export default function Home() {
     isDisabled,
     resolution,
     canDownload,
+    downloadUrl,
     previewUrl,
     updateUrl,
     addUrl,
@@ -302,9 +303,9 @@ export default function Home() {
                 Recent Recordings
               </h3>
 
-              {canDownload ? (
+              {canDownload && downloadUrl ? (
                 <a
-                  href={`/api/download/${sessionId}`}
+                  href={downloadUrl}
                   download
                   className="fade-up mt-4 flex items-center gap-3 rounded-lg border border-[#23232b] bg-[#16161c] p-3 transition hover:border-indigo-500/50"
                 >

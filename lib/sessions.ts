@@ -8,6 +8,7 @@ export type Session = {
   id: string;
   status: SessionStatus;
   videoPath?: string;
+  videoUrl?: string;
   error?: string;
 };
 
@@ -34,6 +35,7 @@ export async function getSession(id: string): Promise<Session | undefined> {
     id: stored.id,
     status: stored.status,
     videoPath: stored.videoPath,
+    videoUrl: stored.videoUrl,
     error: stored.error,
   };
 }

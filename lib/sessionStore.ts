@@ -6,6 +6,7 @@ export type StoredSession = {
   id: string;
   status: SessionStatus;
   videoPath?: string;
+  videoUrl?: string;
   error?: string;
 };
 

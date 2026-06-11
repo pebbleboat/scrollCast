@@ -16,6 +16,7 @@ export type SessionState = {
   id: string | null;
   status: SessionStatus;
   hasVideo: boolean;
+  videoUrl: string | null;
   error: string | null;
   isStarting: boolean;
 };
@@ -29,13 +30,14 @@ export const DEFAULT_SCROLL_CONFIG: ScrollConfig = {
 
 export const DEFAULT_RECORDER_CONFIG: RecorderConfig = {
   ...DEFAULT_SCROLL_CONFIG,
-  resolutionIndex: 1,
+  resolutionIndex: 3,
 };
 
 export const INITIAL_SESSION: SessionState = {
   id: null,
   status: "idle",
   hasVideo: false,
+  videoUrl: null,
   error: null,
   isStarting: false,
 };

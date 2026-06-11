@@ -14,11 +14,13 @@ export function useHook() {
   const [config, setConfig] = useState<RecorderConfig>(DEFAULT_RECORDER_CONFIG);
   const [session, setSession] = useState<SessionState>(INITIAL_SESSION);
 
-  const { id: sessionId, status, hasVideo, error, isStarting } = session;
+  const { id: sessionId, status, hasVideo, videoUrl, error, isStarting } =
+    session;
   const isRecording = status === "recording";
   const isDisabled = isRecording || isStarting;
   const resolution = RESOLUTIONS[config.resolutionIndex];
   const canDownload = Boolean(sessionId && hasVideo);
+  const downloadUrl = videoUrl ?? (sessionId ? `/api/download/${sessionId}` : null);
   const previewUrl = urls.find((u) => u.trim()) || "https://scrollcast.io/preview";
 
   useEffect(() => {
@@ -34,6 +36,7 @@ export function useHook() {
         ...current,
         status: data.status,
         hasVideo: Boolean(data.hasVideo),
+        videoUrl: data.videoUrl ?? current.videoUrl,
         error: data.error ?? current.error,
       }));
     }, 1500);
@@ -62,6 +65,7 @@ export function useHook() {
       id: null,
       status: "recording",
       hasVideo: false,
+      videoUrl: null,
       error: null,
       isStarting: true,
     });
@@ -85,6 +89,7 @@ export function useHook() {
         sessionId?: string;
         status?: SessionState["status"];
         hasVideo?: boolean;
+        videoUrl?: string;
         error?: string;
       };
 
@@ -95,6 +100,7 @@ export function useHook() {
           id: null,
           status: "error",
           hasVideo: false,
+          videoUrl: null,
           error: "Server returned an invalid response. Please try again.",
           isStarting: false,
         });
@@ -116,6 +122,7 @@ export function useHook() {
         id: data.sessionId ?? null,
         status: data.status ?? "recording",
         hasVideo: Boolean(data.hasVideo),
+        videoUrl: data.videoUrl ?? null,
         error: data.error ?? null,
         isStarting: false,
       }));
@@ -124,6 +131,7 @@ export function useHook() {
         id: null,
         status: "error",
         hasVideo: false,
+        videoUrl: null,
         error: "Could not reach the server. Please try again.",
         isStarting: false,
       });
@@ -147,6 +155,7 @@ export function useHook() {
     isDisabled,
     resolution,
     canDownload,
+    downloadUrl,
     previewUrl,
     updateUrl,
     addUrl,

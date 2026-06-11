@@ -49,6 +49,12 @@ export async function startRecording(options: {
     .then(async (videoPath) => {
       session.status = abortController.signal.aborted ? "stopped" : "done";
       session.videoPath = videoPath;
+
+      if (isServerless() && session.status === "done") {
+        const { uploadRecording } = await import("./uploadRecording");
+        session.videoUrl = await uploadRecording(id, videoPath);
+      }
+
       await persistSession(session);
     })
     .catch(async (error: Error) => {
