@@ -7,6 +7,7 @@ export function isServerless(): boolean {
 export async function launchBrowser(headless: boolean) {
   if (isServerless()) {
     const chromium = (await import("@sparticuz/chromium")).default;
+    chromium.setGraphicsMode = false;
 
     return playwrightChromium.launch({
       args: chromium.args,
@@ -15,9 +16,8 @@ export async function launchBrowser(headless: boolean) {
     });
   }
 
-  const { chromium } = await import("playwright");
-
-  return chromium.launch({
+  return playwrightChromium.launch({
+    channel: "chrome",
     headless,
     slowMo: 50,
   });

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isServerless } from "@/lib/browser";
-import { startSession } from "@/lib/sessions";
+import { startRecording } from "@/lib/startRecording";
 import type { ScrollConfig, Viewport } from "@/lib/types";
 import { DEFAULT_VIEWPORT } from "@/lib/types";
 
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
         ? { width: body.width, height: body.height }
         : DEFAULT_VIEWPORT;
 
-    const session = await startSession({ pages, scroll, viewport });
+    const session = await startRecording({ pages, scroll, viewport });
 
     if (isServerless()) {
       return NextResponse.json({
