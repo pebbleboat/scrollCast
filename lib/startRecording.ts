@@ -17,6 +17,14 @@ import {
   type Viewport,
 } from "./types";
 
+// On serverless the platform hard-kills the function at its maxDuration. Stop
+// recording early enough to leave room for finalizing the video (ffmpeg flush
+// on context.close()) and uploading it before that kill. Anything captured up
+// to this point is kept and returned as a truncated recording.
+const SERVERLESS_RECORDING_BUDGET_MS = Number(
+  process.env.RECORDING_BUDGET_MS ?? 40_000
+);
+
 export async function startRecording(options: {
   pages: string[];
   scroll: ScrollConfig;
@@ -38,6 +46,16 @@ export async function startRecording(options: {
 
   await persistSession(session);
 
+  let truncated = false;
+  let budgetTimer: ReturnType<typeof setTimeout> | undefined;
+
+  if (isServerless()) {
+    budgetTimer = setTimeout(() => {
+      truncated = true;
+      abortController.abort();
+    }, SERVERLESS_RECORDING_BUDGET_MS);
+  }
+
   const recording = recordWalkthrough({
     pages: options.pages,
     scroll: options.scroll,
@@ -47,10 +65,12 @@ export async function startRecording(options: {
     signal: abortController.signal,
   })
     .then(async (videoPath) => {
-      session.status = abortController.signal.aborted ? "stopped" : "done";
+      const wasAborted = abortController.signal.aborted;
+      session.status = wasAborted && !truncated ? "stopped" : "done";
+      session.truncated = truncated;
       session.videoPath = videoPath;
 
-      if (isServerless() && session.status === "done") {
+      if (isServerless() && videoPath) {
         const { uploadRecording } = await import("./uploadRecording");
         session.videoUrl = await uploadRecording(id, videoPath);
       }
@@ -58,9 +78,15 @@ export async function startRecording(options: {
       await persistSession(session);
     })
     .catch(async (error: Error) => {
-      session.status = abortController.signal.aborted ? "stopped" : "error";
-      session.error = error.message;
+      session.status =
+        abortController.signal.aborted && !truncated ? "stopped" : "error";
+      session.error = truncated
+        ? "Recording hit the time limit before any video could be captured. Try fewer or shorter pages."
+        : error.message;
       await persistSession(session);
+    })
+    .finally(() => {
+      if (budgetTimer) clearTimeout(budgetTimer);
     });
 
   const completion = recording.then(() => undefined);

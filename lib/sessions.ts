@@ -9,6 +9,7 @@ export type Session = {
   status: SessionStatus;
   videoPath?: string;
   videoUrl?: string;
+  truncated?: boolean;
   error?: string;
 };
 
@@ -36,6 +37,7 @@ export async function getSession(id: string): Promise<Session | undefined> {
     status: stored.status,
     videoPath: stored.videoPath,
     videoUrl: stored.videoUrl,
+    truncated: stored.truncated,
     error: stored.error,
   };
 }

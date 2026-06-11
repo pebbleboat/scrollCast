@@ -14,8 +14,15 @@ export function useHook() {
   const [config, setConfig] = useState<RecorderConfig>(DEFAULT_RECORDER_CONFIG);
   const [session, setSession] = useState<SessionState>(INITIAL_SESSION);
 
-  const { id: sessionId, status, hasVideo, videoUrl, error, isStarting } =
-    session;
+  const {
+    id: sessionId,
+    status,
+    hasVideo,
+    videoUrl,
+    truncated,
+    error,
+    isStarting,
+  } = session;
   const isRecording = status === "recording";
   const isDisabled = isRecording || isStarting;
   const resolution = RESOLUTIONS[config.resolutionIndex];
@@ -37,6 +44,7 @@ export function useHook() {
         status: data.status,
         hasVideo: Boolean(data.hasVideo),
         videoUrl: data.videoUrl ?? current.videoUrl,
+        truncated: Boolean(data.truncated ?? current.truncated),
         error: data.error ?? current.error,
       }));
     }, 1500);
@@ -66,6 +74,7 @@ export function useHook() {
       status: "recording",
       hasVideo: false,
       videoUrl: null,
+      truncated: false,
       error: null,
       isStarting: true,
     });
@@ -90,6 +99,7 @@ export function useHook() {
         status?: SessionState["status"];
         hasVideo?: boolean;
         videoUrl?: string;
+        truncated?: boolean;
         error?: string;
       };
 
@@ -101,7 +111,11 @@ export function useHook() {
           status: "error",
           hasVideo: false,
           videoUrl: null,
-          error: "Server returned an invalid response. Please try again.",
+          truncated: false,
+          error:
+            response.status === 504
+              ? "The recording took too long and timed out. Try fewer or shorter pages."
+              : "Server returned an invalid response. Please try again.",
           isStarting: false,
         });
         return;
@@ -123,6 +137,7 @@ export function useHook() {
         status: data.status ?? "recording",
         hasVideo: Boolean(data.hasVideo),
         videoUrl: data.videoUrl ?? null,
+        truncated: Boolean(data.truncated),
         error: data.error ?? null,
         isStarting: false,
       }));
@@ -132,6 +147,7 @@ export function useHook() {
         status: "error",
         hasVideo: false,
         videoUrl: null,
+        truncated: false,
         error: "Could not reach the server. Please try again.",
         isStarting: false,
       });
@@ -156,6 +172,7 @@ export function useHook() {
     resolution,
     canDownload,
     downloadUrl,
+    truncated,
     previewUrl,
     updateUrl,
     addUrl,

@@ -46,6 +46,7 @@ export async function POST(request: Request) {
         status: session.status,
         hasVideo: Boolean(session.videoUrl ?? session.videoPath),
         videoUrl: session.videoUrl,
+        truncated: Boolean(session.truncated),
         error: session.error,
       });
     }

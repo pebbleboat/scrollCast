@@ -7,6 +7,7 @@ export type StoredSession = {
   status: SessionStatus;
   videoPath?: string;
   videoUrl?: string;
+  truncated?: boolean;
   error?: string;
 };
 

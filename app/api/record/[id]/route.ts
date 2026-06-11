@@ -20,6 +20,7 @@ export async function GET(_request: Request, context: RouteContext) {
     error: session.error,
     hasVideo: Boolean(session.videoUrl ?? session.videoPath),
     videoUrl: session.videoUrl,
+    truncated: Boolean(session.truncated),
   });
 }
 

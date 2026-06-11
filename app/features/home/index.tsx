@@ -36,6 +36,7 @@ export default function Home() {
     resolution,
     canDownload,
     downloadUrl,
+    truncated,
     previewUrl,
     updateUrl,
     addUrl,
@@ -89,10 +90,18 @@ export default function Home() {
             playsInline
             className="max-h-[320px] w-auto max-w-full rounded-xl border border-[#2a2a33] bg-black shadow-2xl"
           />
-          <p className="mt-3 flex items-center gap-2 text-sm font-medium text-emerald-400">
-            <CheckIcon />
-            Recording complete — preview above, download on the right.
-          </p>
+          {truncated ? (
+            <p className="mt-3 flex items-center gap-2 text-center text-sm font-medium text-amber-400">
+              <ErrorIcon />
+              Time limit reached — showing what we captured so far. Use fewer or
+              shorter pages for the full recording.
+            </p>
+          ) : (
+            <p className="mt-3 flex items-center gap-2 text-sm font-medium text-emerald-400">
+              <CheckIcon />
+              Recording complete — preview above, download on the right.
+            </p>
+          )}
         </div>
       );
     }
