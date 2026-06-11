@@ -37,6 +37,11 @@ export async function startRecording(options: {
   const baseDir = options.baseDir ?? getSessionsBaseDir();
   await cleanupOldVideos(baseDir);
 
+  if (isServerless()) {
+    const { cleanupOldBlobRecordings } = await import("./cleanupBlobRecordings");
+    await cleanupOldBlobRecordings();
+  }
+
   const id = crypto.randomUUID();
   const outputDir = path.join(baseDir, id);
   await mkdir(outputDir, { recursive: true });
@@ -101,3 +106,6 @@ export async function startRecording(options: {
 
   return session;
 }
+
+
+
