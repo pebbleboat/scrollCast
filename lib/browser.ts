@@ -1,10 +1,10 @@
-import { chromium as playwrightChromium } from "playwright-core";
-
 export function isServerless(): boolean {
   return Boolean(process.env.VERCEL);
 }
 
 export async function launchBrowser(headless: boolean) {
+  const { chromium: playwrightChromium } = await import("playwright-core");
+
   if (isServerless()) {
     const chromium = (await import("@sparticuz/chromium")).default;
     chromium.setGraphicsMode = false;
