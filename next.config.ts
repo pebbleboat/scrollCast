@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
     "/api/record": [
       "./node_modules/@sparticuz/chromium/bin/**/*",
       "./node_modules/playwright-core/**/*",
+      "./node_modules/playwright-core/.local-browsers/**/*",
     ],
   },
 };

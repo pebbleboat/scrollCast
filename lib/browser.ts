@@ -3,6 +3,10 @@ export function isServerless(): boolean {
 }
 
 export async function launchBrowser(headless: boolean) {
+  if (isServerless()) {
+    process.env.PLAYWRIGHT_BROWSERS_PATH = "0";
+  }
+
   const { chromium: playwrightChromium } = await import("playwright-core");
 
   if (isServerless()) {

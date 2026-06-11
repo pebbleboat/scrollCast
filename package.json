@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "PLAYWRIGHT_BROWSERS_PATH=0 playwright install ffmpeg && next build",
     "start": "next start",
     "lint": "eslint",
     "walkthrough": "tsx utils/walkthrough.ts",
