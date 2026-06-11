@@ -5,7 +5,7 @@ import type { ScrollConfig, Viewport } from "@/lib/types";
 import { DEFAULT_VIEWPORT } from "@/lib/types";
 
 export const runtime = "nodejs";
-export const maxDuration = 300;
+export const maxDuration = 60;
 
 type RecordBody = {
   pages: string[];
