@@ -2,7 +2,7 @@ import { chromium } from "playwright";
 
 (async () => {
   const browser = await chromium.launch({
-    headless: false,
+    headless: true,
   });
 
   const page = await browser.newPage({
