@@ -2,34 +2,23 @@ export function isRender(): boolean {
   return Boolean(process.env.RENDER);
 }
 
-/** Deployed Render host — headless Chromium via @sparticuz/chromium. */
+/** Deployed Render host — headless Playwright Chromium. */
 export function isRemote(): boolean {
   return isRender();
 }
 
-async function launchWithSparticuzChromium() {
-  process.env.PLAYWRIGHT_BROWSERS_PATH = "0";
-
-  const { chromium: playwrightChromium } = await import("playwright-core");
-  const chromium = (await import("@sparticuz/chromium")).default;
-  chromium.setGraphicsMode = false;
-
-  return playwrightChromium.launch({
-    args: chromium.args,
-    executablePath: await chromium.executablePath(),
-    headless: true,
-  });
-}
+const RENDER_LAUNCH_ARGS = [
+  "--no-sandbox",
+  "--disable-setuid-sandbox",
+  "--disable-dev-shm-usage",
+];
 
 export async function launchBrowser(headless: boolean) {
-  if (isRender()) {
-    return launchWithSparticuzChromium();
-  }
-
   const { chromium: playwrightChromium } = await import("playwright-core");
 
   return playwrightChromium.launch({
-    headless,
-    slowMo: headless ? undefined : 50,
+    headless: headless || isRender(),
+    slowMo: headless || isRender() ? undefined : 50,
+    args: isRender() ? RENDER_LAUNCH_ARGS : undefined,
   });
 }

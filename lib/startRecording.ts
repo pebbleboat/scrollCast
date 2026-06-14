@@ -58,12 +58,12 @@ export async function startRecording(options: {
       unregisterActiveSession(id);
     });
 
-  const completion = recording.then(() => undefined);
-  registerActiveSession(id, session, abortController, completion);
-
-  if (isRemote()) {
-    await completion;
-  }
+  registerActiveSession(
+    id,
+    session,
+    abortController,
+    recording.then(() => undefined)
+  );
 
   return session;
 }

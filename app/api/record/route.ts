@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { isRemote } from "@/lib/browser";
 import { startRecording } from "@/lib/startRecording";
 import type { ScrollConfig, Viewport } from "@/lib/types";
 import { DEFAULT_VIEWPORT } from "@/lib/types";
@@ -38,15 +37,6 @@ export async function POST(request: Request) {
         : DEFAULT_VIEWPORT;
 
     const session = await startRecording({ pages, scroll, viewport });
-
-    if (isRemote()) {
-      return NextResponse.json({
-        sessionId: session.id,
-        status: session.status,
-        hasVideo: Boolean(session.videoPath),
-        error: session.error,
-      });
-    }
 
     return NextResponse.json({ sessionId: session.id, status: session.status });
   } catch (error) {
