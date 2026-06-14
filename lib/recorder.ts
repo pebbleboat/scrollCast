@@ -1,6 +1,6 @@
 import { readdir } from "fs/promises";
 import path from "path";
-import { isServerless, launchBrowser } from "./browser";
+import { isRemote, launchBrowser } from "./browser";
 import { scrollPage } from "./scroll";
 import {
   DEFAULT_SCROLL,
@@ -53,6 +53,20 @@ export async function recordWalkthrough(
   });
 
   const page = await context.newPage();
+  let closed = false;
+
+  const teardown = async () => {
+    if (closed) return;
+    closed = true;
+    await context.close().catch(() => {});
+    await browser.close().catch(() => {});
+  };
+
+  if (signal) {
+    signal.addEventListener("abort", () => {
+      void teardown();
+    });
+  }
 
   const guard = (promise: Promise<unknown>) =>
     untilSettledOrAborted(promise, signal);
@@ -63,8 +77,8 @@ export async function recordWalkthrough(
 
       await guard(
         page.goto(url, {
-          waitUntil: isServerless() ? "domcontentloaded" : "networkidle",
-          timeout: isServerless() ? 30_000 : 60_000,
+          waitUntil: isRemote() ? "domcontentloaded" : "networkidle",
+          timeout: isRemote() ? 30_000 : 60_000,
         })
       );
 
@@ -88,8 +102,7 @@ export async function recordWalkthrough(
       await guard(page.waitForTimeout(1500));
     }
   } finally {
-    await context.close().catch(() => {});
-    await browser.close().catch(() => {});
+    await teardown();
   }
 
   const files = await readdir(outputDir);

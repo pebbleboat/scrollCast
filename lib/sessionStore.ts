@@ -6,16 +6,10 @@ export type StoredSession = {
   id: string;
   status: SessionStatus;
   videoPath?: string;
-  videoUrl?: string;
-  truncated?: boolean;
   error?: string;
 };
 
 export function getSessionsBaseDir(): string {
-  if (process.env.VERCEL) {
-    return path.join("/tmp", "scrollcast", "sessions");
-  }
-
   return path.resolve(process.cwd(), "videos", "sessions");
 }
 

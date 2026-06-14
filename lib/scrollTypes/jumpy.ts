@@ -2,16 +2,19 @@ import type { Page } from "playwright";
 
 type JumpyScrollOptions = {
   waitMs?: number;
+  maxJumps?: number;
 };
+
+const DEFAULT_MAX_JUMPS = 60;
 
 export async function jumpyScroll(
   page: Page,
   options: JumpyScrollOptions = {}
 ): Promise<void> {
-  const { waitMs = 1000 } = options;
+  const { waitMs = 1000, maxJumps = DEFAULT_MAX_JUMPS } = options;
   let previousHeight = 0;
 
-  while (true) {
+  for (let jump = 0; jump < maxJumps; jump += 1) {
     await page.evaluate(() => {
       window.scrollBy({
         top: window.innerHeight * 0.8,

@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
-import { isServerless } from "@/lib/browser";
+import { isRemote } from "@/lib/browser";
 import { startRecording } from "@/lib/startRecording";
 import type { ScrollConfig, Viewport } from "@/lib/types";
 import { DEFAULT_VIEWPORT } from "@/lib/types";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
 
 type RecordBody = {
   pages: string[];
@@ -40,13 +39,11 @@ export async function POST(request: Request) {
 
     const session = await startRecording({ pages, scroll, viewport });
 
-    if (isServerless()) {
+    if (isRemote()) {
       return NextResponse.json({
         sessionId: session.id,
         status: session.status,
-        hasVideo: Boolean(session.videoUrl ?? session.videoPath),
-        videoUrl: session.videoUrl,
-        truncated: Boolean(session.truncated),
+        hasVideo: Boolean(session.videoPath),
         error: session.error,
       });
     }

@@ -18,9 +18,7 @@ export async function GET(_request: Request, context: RouteContext) {
   return NextResponse.json({
     status: session.status,
     error: session.error,
-    hasVideo: Boolean(session.videoUrl ?? session.videoPath),
-    videoUrl: session.videoUrl,
-    truncated: Boolean(session.truncated),
+    hasVideo: Boolean(session.videoPath),
   });
 }
 
@@ -32,5 +30,9 @@ export async function DELETE(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Session not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ status: session.status });
+  return NextResponse.json({
+    status: session.status,
+    error: session.error,
+    hasVideo: Boolean(session.videoPath),
+  });
 }

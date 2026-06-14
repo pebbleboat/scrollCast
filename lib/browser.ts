@@ -1,19 +1,10 @@
-export function isVercel(): boolean {
-  return Boolean(process.env.VERCEL);
-}
-
 export function isRender(): boolean {
   return Boolean(process.env.RENDER);
 }
 
-/** Vercel serverless — tight time limits, blob storage, synchronous response. */
-export function isServerless(): boolean {
-  return isVercel();
-}
-
-/** Deployed hosts without a local Chrome install (Vercel or Render). */
+/** Deployed Render host — headless Chromium via @sparticuz/chromium. */
 export function isRemote(): boolean {
-  return isVercel() || isRender();
+  return isRender();
 }
 
 async function launchWithSparticuzChromium() {
@@ -31,7 +22,7 @@ async function launchWithSparticuzChromium() {
 }
 
 export async function launchBrowser(headless: boolean) {
-  if (isVercel() || isRender()) {
+  if (isRender()) {
     return launchWithSparticuzChromium();
   }
 

@@ -14,28 +14,34 @@ export function useHook() {
   const [config, setConfig] = useState<RecorderConfig>(DEFAULT_RECORDER_CONFIG);
   const [session, setSession] = useState<SessionState>(INITIAL_SESSION);
 
-  const {
-    id: sessionId,
-    status,
-    hasVideo,
-    videoUrl,
-    truncated,
-    error,
-    isStarting,
-  } = session;
+  const { id: sessionId, status, hasVideo, error, isStarting } = session;
   const isRecording = status === "recording";
   const isDisabled = isRecording || isStarting;
   const resolution = RESOLUTIONS[config.resolutionIndex];
   const canDownload = Boolean(sessionId && hasVideo);
-  const downloadUrl = videoUrl ?? (sessionId ? `/api/download/${sessionId}` : null);
+  const downloadUrl = sessionId ? `/api/download/${sessionId}` : null;
   const previewUrl = urls.find((u) => u.trim()) || "https://scrollcast.io/preview";
 
   useEffect(() => {
-    if (!sessionId || (status !== "recording" && (hasVideo || status === "error"))) {
+    if (!sessionId || status !== "recording") {
       return;
     }
 
+    const startedAt = Date.now();
+    const maxPollMs = 5 * 60 * 1000;
+
     const timer = setInterval(async () => {
+      if (Date.now() - startedAt > maxPollMs) {
+        clearInterval(timer);
+        setSession((current) => ({
+          ...current,
+          status: "error",
+          error: "Recording timed out. Try again or use fewer pages.",
+          isStarting: false,
+        }));
+        return;
+      }
+
       const response = await fetch(`/api/record/${sessionId}`);
       const data = await response.json();
 
@@ -43,14 +49,13 @@ export function useHook() {
         ...current,
         status: data.status,
         hasVideo: Boolean(data.hasVideo),
-        videoUrl: data.videoUrl ?? current.videoUrl,
-        truncated: Boolean(data.truncated ?? current.truncated),
         error: data.error ?? current.error,
+        isStarting: false,
       }));
     }, 1500);
 
     return () => clearInterval(timer);
-  }, [sessionId, status, hasVideo]);
+  }, [sessionId, status]);
 
   function updateConfig(patch: Partial<RecorderConfig>) {
     setConfig((current) => ({ ...current, ...patch }));
@@ -73,8 +78,6 @@ export function useHook() {
       id: null,
       status: "recording",
       hasVideo: false,
-      videoUrl: null,
-      truncated: false,
       error: null,
       isStarting: true,
     });
@@ -98,8 +101,6 @@ export function useHook() {
         sessionId?: string;
         status?: SessionState["status"];
         hasVideo?: boolean;
-        videoUrl?: string;
-        truncated?: boolean;
         error?: string;
       };
 
@@ -110,12 +111,7 @@ export function useHook() {
           id: null,
           status: "error",
           hasVideo: false,
-          videoUrl: null,
-          truncated: false,
-          error:
-            response.status === 504
-              ? "The recording took too long and timed out. Try fewer or shorter pages."
-              : "Server returned an invalid response. Please try again.",
+          error: "Server returned an invalid response. Please try again.",
           isStarting: false,
         });
         return;
@@ -136,8 +132,6 @@ export function useHook() {
         id: data.sessionId ?? null,
         status: data.status ?? "recording",
         hasVideo: Boolean(data.hasVideo),
-        videoUrl: data.videoUrl ?? null,
-        truncated: Boolean(data.truncated),
         error: data.error ?? null,
         isStarting: false,
       }));
@@ -146,8 +140,6 @@ export function useHook() {
         id: null,
         status: "error",
         hasVideo: false,
-        videoUrl: null,
-        truncated: false,
         error: "Could not reach the server. Please try again.",
         isStarting: false,
       });
@@ -156,7 +148,30 @@ export function useHook() {
 
   async function stopRecording() {
     if (!sessionId) return;
-    await fetch(`/api/record/${sessionId}`, { method: "DELETE" });
+
+    setSession((current) => ({
+      ...current,
+      status: "stopped",
+      isStarting: false,
+    }));
+
+    try {
+      const response = await fetch(`/api/record/${sessionId}`, { method: "DELETE" });
+      const data = await response.json();
+
+      setSession((current) => ({
+        ...current,
+        status: data.status ?? "stopped",
+        hasVideo: Boolean(data.hasVideo ?? current.hasVideo),
+        error: data.error ?? current.error,
+      }));
+    } catch {
+      setSession((current) => ({
+        ...current,
+        status: "error",
+        error: "Could not stop the recording. Please refresh and try again.",
+      }));
+    }
   }
 
   return {
@@ -172,7 +187,6 @@ export function useHook() {
     resolution,
     canDownload,
     downloadUrl,
-    truncated,
     previewUrl,
     updateUrl,
     addUrl,

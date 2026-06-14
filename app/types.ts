@@ -16,8 +16,6 @@ export type SessionState = {
   id: string | null;
   status: SessionStatus;
   hasVideo: boolean;
-  videoUrl: string | null;
-  truncated: boolean;
   error: string | null;
   isStarting: boolean;
 };
@@ -38,8 +36,6 @@ export const INITIAL_SESSION: SessionState = {
   id: null,
   status: "idle",
   hasVideo: false,
-  videoUrl: null,
-  truncated: false,
   error: null,
   isStarting: false,
 };
