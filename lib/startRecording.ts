@@ -14,6 +14,7 @@ import {
   type ScrollConfig,
   type Viewport,
 } from "./types";
+import { capViewportForRemote } from "./viewport";
 
 export async function startRecording(options: {
   pages: string[];
@@ -36,10 +37,14 @@ export async function startRecording(options: {
 
   await persistSession(session);
 
+  const viewport = isRemote()
+    ? capViewportForRemote(options.viewport ?? DEFAULT_VIEWPORT)
+    : (options.viewport ?? DEFAULT_VIEWPORT);
+
   const recording = recordWalkthrough({
     pages: options.pages,
     scroll: options.scroll,
-    viewport: options.viewport ?? DEFAULT_VIEWPORT,
+    viewport,
     outputDir,
     headless: isRemote(),
     signal: abortController.signal,

@@ -11,6 +11,10 @@ const RENDER_LAUNCH_ARGS = [
   "--no-sandbox",
   "--disable-setuid-sandbox",
   "--disable-dev-shm-usage",
+  "--disable-gpu",
+  "--mute-audio",
+  "--disable-extensions",
+  "--disable-background-networking",
 ];
 
 export async function launchBrowser(headless: boolean) {

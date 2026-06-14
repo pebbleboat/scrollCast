@@ -1,3 +1,5 @@
+# Playwright + video recording needs Standard (1 CPU / 2GB RAM).
+# Free tier (512MB) will OOM, hang, or take 5+ minutes — upgrade in the dashboard.
 services:
   - type: web
     name: scrollcast
