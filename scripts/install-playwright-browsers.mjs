@@ -3,13 +3,13 @@ import { execSync } from "node:child_process";
 const env = { ...process.env, PLAYWRIGHT_BROWSERS_PATH: "0" };
 
 function install(args) {
-  execSync(`playwright install ${args}`, { stdio: "inherit", env });
+  execSync(`npx playwright install ${args}`, { stdio: "inherit", env });
 }
 
-if (process.env.VERCEL) {
+// Vercel and Render use @sparticuz/chromium at runtime — only ffmpeg is needed
+// for Playwright video recording. --with-deps requires root and fails on Render.
+if (process.env.VERCEL || process.env.RENDER) {
   install("ffmpeg");
-} else if (process.env.RENDER) {
-  install("--with-deps chromium ffmpeg");
 } else {
   install("chromium ffmpeg");
 }

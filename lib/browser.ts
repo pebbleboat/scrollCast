@@ -16,30 +16,29 @@ export function isRemote(): boolean {
   return isVercel() || isRender();
 }
 
-export async function launchBrowser(headless: boolean) {
+async function launchWithSparticuzChromium() {
+  process.env.PLAYWRIGHT_BROWSERS_PATH = "0";
+
   const { chromium: playwrightChromium } = await import("playwright-core");
-
-  if (isVercel()) {
-    process.env.PLAYWRIGHT_BROWSERS_PATH = "0";
-
-    const chromium = (await import("@sparticuz/chromium")).default;
-    chromium.setGraphicsMode = false;
-
-    return playwrightChromium.launch({
-      args: chromium.args,
-      executablePath: await chromium.executablePath(),
-      headless: true,
-    });
-  }
-
-  if (isRender()) {
-    process.env.PLAYWRIGHT_BROWSERS_PATH = "0";
-  }
-
-  const runHeadless = headless || isRender();
+  const chromium = (await import("@sparticuz/chromium")).default;
+  chromium.setGraphicsMode = false;
 
   return playwrightChromium.launch({
-    headless: runHeadless,
-    slowMo: runHeadless ? undefined : 50,
+    args: chromium.args,
+    executablePath: await chromium.executablePath(),
+    headless: true,
+  });
+}
+
+export async function launchBrowser(headless: boolean) {
+  if (isVercel() || isRender()) {
+    return launchWithSparticuzChromium();
+  }
+
+  const { chromium: playwrightChromium } = await import("playwright-core");
+
+  return playwrightChromium.launch({
+    headless,
+    slowMo: headless ? undefined : 50,
   });
 }
