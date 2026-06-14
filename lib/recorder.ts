@@ -84,9 +84,12 @@ export async function recordWalkthrough(
 
       if (signal?.aborted) break;
 
+      // Force instant scrolling: we position the page per animation frame, and
+      // CSS smooth scrolling would animate between our setpoints (fighting the
+      // loop and making scrollY lag the target, badly on slow CPUs).
       await guard(
         page.addStyleTag({
-          content: `html { scroll-behavior: smooth !important; }`,
+          content: `html { scroll-behavior: auto !important; }`,
         })
       );
 
