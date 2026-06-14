@@ -1,6 +1,6 @@
 import { mkdir } from "fs/promises";
 import path from "path";
-import { isServerless } from "./browser";
+import { isRemote, isServerless } from "./browser";
 import { cleanupOldVideos } from "./cleanupVideos";
 import { recordWalkthrough } from "./recorder";
 import {
@@ -69,7 +69,7 @@ export async function startRecording(options: {
     scroll: options.scroll,
     viewport: options.viewport ?? DEFAULT_VIEWPORT,
     outputDir,
-    headless: isServerless(),
+    headless: isRemote(),
     signal: abortController.signal,
   })
     .then(async (videoPath) => {
