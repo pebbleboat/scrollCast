@@ -7,6 +7,13 @@ export function isRemote(): boolean {
   return isRender();
 }
 
+/** Match build-time install (scripts/install-playwright-browsers.mjs). */
+function ensurePlaywrightBrowsersPath(): void {
+  if (!process.env.PLAYWRIGHT_BROWSERS_PATH) {
+    process.env.PLAYWRIGHT_BROWSERS_PATH = "0";
+  }
+}
+
 const RENDER_LAUNCH_ARGS = [
   "--no-sandbox",
   "--disable-setuid-sandbox",
@@ -18,6 +25,8 @@ const RENDER_LAUNCH_ARGS = [
 ];
 
 export async function launchBrowser(headless: boolean) {
+  ensurePlaywrightBrowsersPath();
+
   const { chromium: playwrightChromium } = await import("playwright-core");
 
   return playwrightChromium.launch({
